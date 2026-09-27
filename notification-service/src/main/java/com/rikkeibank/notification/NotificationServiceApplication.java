@@ -1,0 +1,3 @@
+package com.rikkeibank.notification;import com.rikkeibank.common.api.GlobalExceptionHandler;import com.rikkeibank.common.security.JwtSecurityConfiguration;import org.springframework.boot.*;import org.springframework.boot.autoconfigure.SpringBootApplication;import org.springframework.context.annotation.Import;import org.springframework.kafka.annotation.EnableKafka;
+@SpringBootApplication @EnableKafka @Import({GlobalExceptionHandler.class,JwtSecurityConfiguration.class})public class NotificationServiceApplication{public static void main(String[]a){SpringApplication.run(NotificationServiceApplication.class,a);}}
+

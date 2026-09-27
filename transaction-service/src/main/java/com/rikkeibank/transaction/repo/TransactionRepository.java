@@ -1,0 +1,2 @@
+package com.rikkeibank.transaction.repo;import com.rikkeibank.transaction.domain.BankTransaction;import org.springframework.data.jpa.repository.JpaRepository;import java.time.Instant;import java.util.*;public interface TransactionRepository extends JpaRepository<BankTransaction,UUID>{List<BankTransaction>findByCustomerIdOrderByCreatedAtDesc(UUID id);List<BankTransaction>findByAssignedTellerIdAndCreatedAtBetweenOrderByCreatedAtDesc(UUID id,Instant from,Instant to);}
+

@@ -1,0 +1,54 @@
+{
+  "info": {"name":"RikkeiBank Microservices","description":"All requests go through Spring Cloud Gateway. Run folders in order for the complete demo.","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},
+  "auth": {"type":"bearer","bearer":[{"key":"token","value":"{{adminToken}}","type":"string"}]},
+  "item": [
+    {"name":"01 - Authentication","item":[
+      {"name":"Admin login","event":[{"listen":"test","script":{"exec":["pm.test('200', () => pm.response.to.have.status(200));","const j=pm.response.json(); pm.environment.set('adminToken',j.accessToken); pm.environment.set('adminRefreshToken',j.refreshToken);"]}}],"request":{"auth":{"type":"noauth"},"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"username\": \"admin\",\n  \"password\": \"Admin@123\"\n}"},"url":"{{baseUrl}}/api/auth/login"}},
+      {"name":"Refresh token","request":{"auth":{"type":"noauth"},"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"refreshToken\": \"{{adminRefreshToken}}\"\n}"},"url":"{{baseUrl}}/api/auth/refresh"}}
+    ]},
+    {"name":"02 - Customers (ADMIN)","item":[
+      {"name":"Create source customer","event":[{"listen":"test","script":{"exec":["pm.test('201',()=>pm.response.to.have.status(201));","pm.environment.set('customerId',pm.response.json().id);"]}}],"request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n \"fullName\":\"Nguyen Van A\",\n \"email\":\"alice@example.com\",\n \"phone\":\"0900000001\",\n \"nationalId\":\"001001000001\",\n \"dateOfBirth\":\"1995-01-01\",\n \"address\":\"Ha Noi\",\n \"active\":true\n}"},"url":"{{baseUrl}}/api/customers"}},
+      {"name":"Create target customer","event":[{"listen":"test","script":{"exec":["pm.environment.set('targetCustomerId',pm.response.json().id);"]}}],"request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n \"fullName\":\"Tran Thi B\",\n \"email\":\"bob@example.com\",\n \"phone\":\"0900000002\",\n \"nationalId\":\"001001000002\",\n \"dateOfBirth\":\"1996-02-02\",\n \"address\":\"Da Nang\",\n \"active\":true\n}"},"url":"{{baseUrl}}/api/customers"}},
+      {"name":"List customers","request":{"method":"GET","url":"{{baseUrl}}/api/customers?page=0&size=20"}},
+      {"name":"Get customer","request":{"method":"GET","url":"{{baseUrl}}/api/customers/{{customerId}}"}},
+      {"name":"Update customer","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"fullName\":\"Nguyen Van A Updated\",\"email\":\"alice@example.com\",\"phone\":\"0900000001\",\"nationalId\":\"001001000001\",\"dateOfBirth\":\"1995-01-01\",\"address\":\"Ho Chi Minh City\",\"active\":true}"},"url":"{{baseUrl}}/api/customers/{{customerId}}"}}
+    ]},
+    {"name":"03 - Staff and Users (ADMIN)","item":[
+      {"name":"Create customer login","event":[{"listen":"test","script":{"exec":["pm.environment.set('customerUserId',pm.response.json().id);"]}}],"request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"username\":\"alice\",\"password\":\"Customer@123\",\"role\":\"CUSTOMER\",\"fullName\":\"Nguyen Van A\",\"customerId\":\"{{customerId}}\"}"},"url":"{{baseUrl}}/api/staff"}},
+      {"name":"Create teller","event":[{"listen":"test","script":{"exec":["pm.environment.set('tellerUserId',pm.response.json().id);"]}}],"request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"username\":\"teller01\",\"password\":\"Teller@123\",\"role\":\"TELLER\",\"fullName\":\"Teller One\"}"},"url":"{{baseUrl}}/api/staff"}},
+      {"name":"List staff","request":{"method":"GET","url":"{{baseUrl}}/api/staff?page=0&size=20"}},
+      {"name":"Force logout customer","request":{"method":"DELETE","url":"{{baseUrl}}/api/auth/sessions/{{customerUserId}}"}}
+    ]},
+    {"name":"04 - Account Types (ADMIN)","item":[
+      {"name":"Create account type","event":[{"listen":"test","script":{"exec":["pm.environment.set('accountTypeId',pm.response.json().id);"]}}],"request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"code\":\"PAYMENT\",\"name\":\"Payment account\",\"minimumBalance\":0,\"active\":true}"},"url":"{{baseUrl}}/api/account-types"}},
+      {"name":"List account types (cache-aside)","request":{"method":"GET","url":"{{baseUrl}}/api/account-types"}},
+      {"name":"Get account type twice to show Redis hit","request":{"method":"GET","url":"{{baseUrl}}/api/account-types/{{accountTypeId}}"}}
+    ]},
+    {"name":"05 - Accounts (ADMIN)","item":[
+      {"name":"Create source account","event":[{"listen":"test","script":{"exec":["pm.environment.set('sourceAccountId',pm.response.json().id);"]}}],"request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"customerId\":\"{{customerId}}\",\"accountTypeId\":\"{{accountTypeId}}\",\"initialBalance\":1000000}"},"url":"{{baseUrl}}/api/accounts"}},
+      {"name":"Create target account","event":[{"listen":"test","script":{"exec":["pm.environment.set('targetAccountId',pm.response.json().id);"]}}],"request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"customerId\":\"{{targetCustomerId}}\",\"accountTypeId\":\"{{accountTypeId}}\",\"initialBalance\":100000}"},"url":"{{baseUrl}}/api/accounts"}},
+      {"name":"List accounts","request":{"method":"GET","url":"{{baseUrl}}/api/accounts"}}
+    ]},
+    {"name":"06 - Customer session","item":[
+      {"name":"Customer login","event":[{"listen":"test","script":{"exec":["const j=pm.response.json(); pm.environment.set('customerToken',j.accessToken); pm.environment.set('customerRefreshToken',j.refreshToken);"]}}],"request":{"auth":{"type":"noauth"},"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"username\":\"alice\",\"password\":\"Customer@123\"}"},"url":"{{baseUrl}}/api/auth/login"}},
+      {"name":"My accounts","request":{"auth":{"type":"bearer","bearer":[{"key":"token","value":"{{customerToken}}","type":"string"}]},"method":"GET","url":"{{baseUrl}}/api/accounts/me"}},
+      {"name":"My profile","request":{"auth":{"type":"bearer","bearer":[{"key":"token","value":"{{customerToken}}","type":"string"}]},"method":"GET","url":"{{baseUrl}}/api/customers/me"}}
+    ]},
+    {"name":"07 - Transfer Saga","item":[
+      {"name":"Successful transfer","event":[{"listen":"test","script":{"exec":["pm.test('COMPLETED',()=>pm.expect(pm.response.json().status).to.eql('COMPLETED'));","pm.environment.set('transactionId',pm.response.json().id);"]}}],"request":{"auth":{"type":"bearer","bearer":[{"key":"token","value":"{{customerToken}}","type":"string"}]},"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"sourceAccountId\":\"{{sourceAccountId}}\",\"targetAccountId\":\"{{targetAccountId}}\",\"amount\":50000,\"simulateCreditFailure\":false}"},"url":"{{baseUrl}}/api/transfers"}},
+      {"name":"Rollback demo (COMPENSATED)","event":[{"listen":"test","script":{"exec":["pm.test('COMPENSATED',()=>pm.expect(pm.response.json().status).to.eql('COMPENSATED'));","pm.environment.set('rollbackTransactionId',pm.response.json().id);"]}}],"request":{"auth":{"type":"bearer","bearer":[{"key":"token","value":"{{customerToken}}","type":"string"}]},"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"sourceAccountId\":\"{{sourceAccountId}}\",\"targetAccountId\":\"{{targetAccountId}}\",\"amount\":25000,\"simulateCreditFailure\":true}"},"url":"{{baseUrl}}/api/transfers"}},
+      {"name":"My transaction history","request":{"auth":{"type":"bearer","bearer":[{"key":"token","value":"{{customerToken}}","type":"string"}]},"method":"GET","url":"{{baseUrl}}/api/transactions/mine"}},
+      {"name":"My Kafka notifications","request":{"auth":{"type":"bearer","bearer":[{"key":"token","value":"{{customerToken}}","type":"string"}]},"method":"GET","url":"{{baseUrl}}/api/notifications/me"}}
+    ]},
+    {"name":"08 - Teller scope","item":[
+      {"name":"Assign transaction to teller (ADMIN)","request":{"method":"PATCH","url":"{{baseUrl}}/api/transactions/{{transactionId}}/assign/{{tellerUserId}}"}},
+      {"name":"Teller login","event":[{"listen":"test","script":{"exec":["pm.environment.set('tellerToken',pm.response.json().accessToken);"]}}],"request":{"auth":{"type":"noauth"},"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\"username\":\"teller01\",\"password\":\"Teller@123\"}"},"url":"{{baseUrl}}/api/auth/login"}},
+      {"name":"Assigned transactions today","request":{"auth":{"type":"bearer","bearer":[{"key":"token","value":"{{tellerToken}}","type":"string"}]},"method":"GET","url":"{{baseUrl}}/api/transactions/today?zone=Asia/Bangkok"}}
+    ]},
+    {"name":"09 - Operations","item":[
+      {"name":"Gateway health","request":{"auth":{"type":"noauth"},"method":"GET","url":"{{baseUrl}}/actuator/health"}},
+      {"name":"Eureka dashboard","request":{"auth":{"type":"noauth"},"method":"GET","url":"http://localhost:8761"}},
+      {"name":"Circuit breaker state","request":{"auth":{"type":"noauth"},"method":"GET","url":"http://localhost:8084/actuator/circuitbreakers"}}
+    ]}
+  ]
+}

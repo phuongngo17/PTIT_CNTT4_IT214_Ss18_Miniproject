@@ -1,0 +1,3 @@
+package com.rikkeibank.transaction;import com.rikkeibank.common.api.GlobalExceptionHandler;import com.rikkeibank.common.security.JwtSecurityConfiguration;import org.springframework.boot.*;import org.springframework.boot.autoconfigure.SpringBootApplication;import org.springframework.cloud.openfeign.EnableFeignClients;import org.springframework.context.annotation.Import;
+@SpringBootApplication @EnableFeignClients @Import({GlobalExceptionHandler.class,JwtSecurityConfiguration.class})public class TransactionServiceApplication{public static void main(String[]a){SpringApplication.run(TransactionServiceApplication.class,a);}}
+

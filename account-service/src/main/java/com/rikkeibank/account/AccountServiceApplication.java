@@ -1,0 +1,3 @@
+package com.rikkeibank.account;import com.rikkeibank.common.api.GlobalExceptionHandler;import com.rikkeibank.common.security.JwtSecurityConfiguration;import org.springframework.boot.*;import org.springframework.boot.autoconfigure.SpringBootApplication;import org.springframework.cache.annotation.EnableCaching;import org.springframework.context.annotation.Import;
+@SpringBootApplication @EnableCaching @Import({GlobalExceptionHandler.class,JwtSecurityConfiguration.class})public class AccountServiceApplication{public static void main(String[]a){SpringApplication.run(AccountServiceApplication.class,a);}}
+

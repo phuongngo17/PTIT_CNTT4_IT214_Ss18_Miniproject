@@ -1,0 +1,3 @@
+package com.rikkeibank.account.domain;import jakarta.persistence.*;import java.math.BigDecimal;import java.time.Instant;import java.util.UUID;
+@Entity @Table(uniqueConstraints=@UniqueConstraint(columnNames={"operationId","kind"}))public class LedgerOperation{@Id private UUID id;@Column(nullable=false)private UUID operationId;@Column(nullable=false)private UUID accountId;@Column(nullable=false)private String kind;@Column(nullable=false)private BigDecimal amount;private Instant createdAt;protected LedgerOperation(){}public LedgerOperation(UUID op,UUID acc,String k,BigDecimal a){id=UUID.randomUUID();operationId=op;accountId=acc;kind=k;amount=a;createdAt=Instant.now();}}
+

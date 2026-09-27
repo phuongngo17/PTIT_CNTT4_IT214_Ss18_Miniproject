@@ -1,0 +1,2 @@
+package com.rikkeibank.account.service;import org.springframework.stereotype.Component;import java.util.UUID;@Component("accountAuthorization")public class AccountAuthorization{private final AccountService s;public AccountAuthorization(AccountService s){this.s=s;}public boolean owns(UUID accountId,Object claim){try{return claim!=null&&s.get(accountId).getCustomerId().toString().equals(claim.toString());}catch(Exception e){return false;}}}
+

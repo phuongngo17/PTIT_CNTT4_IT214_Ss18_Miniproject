@@ -1,0 +1,9 @@
+package com.rikkeibank.identity.web;
+import com.rikkeibank.identity.domain.AppUser; import com.rikkeibank.identity.service.UserService; import jakarta.validation.Valid; import jakarta.validation.constraints.*; import org.springframework.data.domain.*; import org.springframework.http.*; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*; import java.time.Instant; import java.util.UUID;
+@RestController @RequestMapping("/api/staff") @PreAuthorize("hasRole('ADMIN')") public class StaffController {private final UserService service;public StaffController(UserService s){service=s;}
+ @PostMapping @ResponseStatus(HttpStatus.CREATED) View create(@Valid @RequestBody Create r){return view(service.create(r.username(),r.password(),r.role(),r.fullName(),r.customerId()));} @GetMapping Page<View> list(Pageable p){return service.list(p).map(StaffController::view);} @GetMapping("/{id}") View get(@PathVariable UUID id){return view(service.get(id));}
+ @PutMapping("/{id}") View update(@PathVariable UUID id,@Valid @RequestBody Update r){return view(service.update(id,r.fullName(),r.role(),r.active(),r.customerId()));} @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) void delete(@PathVariable UUID id){service.delete(id);}
+ static View view(AppUser u){return new View(u.getId(),u.getUsername(),u.getFullName(),u.getRole(),u.isActive(),u.getCustomerId(),u.getCreatedAt());}
+ public record Create(@NotBlank String username,@Size(min=8) String password,@NotNull AppUser.Role role,@NotBlank String fullName,UUID customerId){} public record Update(@NotBlank String fullName,@NotNull AppUser.Role role,boolean active,UUID customerId){} public record View(UUID id,String username,String fullName,AppUser.Role role,boolean active,UUID customerId,Instant createdAt){}
+}
+

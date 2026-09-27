@@ -1,0 +1,32 @@
+server: { port: 8080 }
+spring:
+  application.name: api-gateway
+  config.import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
+  cloud.gateway.server.webflux.routes:
+    - id: identity
+      uri: lb://identity-service
+      predicates:
+        - "Path=/api/auth/**,/api/staff/**"
+    - id: customer
+      uri: lb://customer-service
+      predicates:
+        - "Path=/api/customers/**"
+    - id: account
+      uri: lb://account-service
+      predicates:
+        - "Path=/api/accounts/**,/api/account-types/**"
+    - id: transaction
+      uri: lb://transaction-service
+      predicates:
+        - "Path=/api/transactions/**,/api/transfers/**"
+    - id: notification
+      uri: lb://notification-service
+      predicates:
+        - "Path=/api/notifications/**"
+  data.redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    repositories.enabled: false
+security.jwt.secret: ${JWT_SECRET:rikkeibank-development-secret-key-at-least-32-bytes-long}
+eureka.client.serviceUrl.defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+management.endpoints.web.exposure.include: health,info,gateway

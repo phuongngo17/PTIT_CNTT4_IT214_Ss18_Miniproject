@@ -1,0 +1,3 @@
+package com.rikkeibank.account.domain;import jakarta.persistence.*;import java.math.BigDecimal;import java.util.UUID;
+@Entity public class AccountType{@Id private UUID id;@Column(nullable=false,unique=true)private String code;@Column(nullable=false)private String name;private BigDecimal minimumBalance;private boolean active=true;protected AccountType(){}public AccountType(String c,String n,BigDecimal m){id=UUID.randomUUID();update(c,n,m,true);}public void update(String c,String n,BigDecimal m,boolean a){code=c;name=n;minimumBalance=m;active=a;}public UUID getId(){return id;}public String getCode(){return code;}public String getName(){return name;}public BigDecimal getMinimumBalance(){return minimumBalance;}public boolean isActive(){return active;}}
+
